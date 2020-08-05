@@ -1,0 +1,29 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.TrainingUnitFormData],
+  department: models.Department,
+  program: models.Program,
+  training: models.Training
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.catalog.trainingUnitForm
+@import components.commons._
+
+@trainingsLayout("Edit Training Unit: " + f.data("title")) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.TrainingController.show(department.id.value, program.id.value, training.id.value).url)),
+      Location(Some("Unit"), f.data("title"), Some(routes.TrainingUnitController.show(department.id.value, program.id.value, training.id.value, f.data("id").toLong).url)),
+      Location(None, "Edit Unit", None)
+    ))
+  }
+
+  @trainingUnitForm("Edit Training Unit: " + f.data("title"), department, program, training, f)
+}

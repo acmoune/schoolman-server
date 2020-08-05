@@ -1,0 +1,23 @@
+@import layouts.accountsLayout
+@import components.accountProfiles.accountProfileForm
+@import components.commons._
+@(
+  f: play.api.data.Form[controllers.formfactories.AccountProfileFormData],
+  account: Account
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@accountsLayout("Create Profile") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All accounts", Some(routes.AccountController.list().url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(None, "New Profile", None)
+    ))
+  }
+
+  @accountProfileForm("Create Profile", f)
+}

@@ -1,0 +1,83 @@
+@(
+  plan: models.Plan,
+  department: models.Department,
+  program: models.Program,
+  trainingPlans: Seq[(utils.PK[models.TrainingPlan], String, String, utils.PK[models.Training])]
+)(
+  implicit req: RequestHeader, flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.ProgramController.show(department.id.value, program.id.value)">
+    <span class="fa fa-arrow-circle-left"></span> Program
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.PlanController.edit(department.id.value, program.id.value, plan.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.PlanController.delete(department.id.value, program.id.value, plan.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.PlanController.addTrainingPlans(department.id.value, program.id.value, plan.id.value)">Add Trainings</a>
+}
+
+@trainingsLayout("Plan: " + plan.title) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, None)
+    ))
+  }
+
+  @page(title = Some("Plan: " + plan.title), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div><label>Title</label> &nbsp; <span>@plan.title</span></div>
+          <div><label>Description</label> &nbsp; <span>@plan.description</span></div>
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table">
+        <div class="panel-body">
+          @if(trainingPlans.size == 0) { <span>No training in this plan</span> } else {
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Training</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+              @for(training <- trainingPlans) {
+                <tr>
+                  <td>
+                    <a href="@routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training._4.value, training._1.value)">@training._2</a>
+                  </td>
+
+                  <td>
+                    <div class="item-info">
+                      <span>Duration: @if(training._3.isEmpty){ Not specified }else{ @training._3 }</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+    }
+  }
+}

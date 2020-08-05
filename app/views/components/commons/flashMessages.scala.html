@@ -1,0 +1,13 @@
+@()(implicit flash: Flash)
+
+@flashMessage(level: String) = {
+  @if(flash.get(level).isDefined) {
+    @alert(level) {
+      @flash.get(level).get
+    }
+  }
+}
+
+@flashMessage("info")
+@flashMessage("danger")
+@flashMessage("warning")

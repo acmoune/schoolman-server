@@ -1,0 +1,106 @@
+@this(s3Service: utils.S3Service)
+@(
+  training: models.Training,
+  department: models.Department,
+  program: models.Program,
+  trainingUnits: Seq[models.TrainingUnit]
+)(
+  implicit req: RequestHeader, flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.ProgramController.show(department.id.value, program.id.value)">
+    <span class="fa fa-arrow-circle-left"></span> Program
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.TrainingController.edit(department.id.value, program.id.value, training.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.TrainingController.delete(department.id.value, program.id.value, training.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.TrainingUnitController.newTrainingUnit(department.id.value, program.id.value, training.id.value)">Add Unit</a>
+}
+
+@trainingsLayout("Training: " + training.title) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Training"), training.title, None)
+    ))
+  }
+
+  @page(title = Some("Training: " + training.title), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="row no-gutter">
+        <div class="col-xs-6">
+          <div style="margin-right: 5px">
+
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div><label>Title</label> &nbsp; <span>@training.title</span></div>
+                <div><label>Description</label> &nbsp; <p>@training.description</p></div>
+                <div><label>Required number of optional units</label> &nbsp; <span>@training.requiredOptionalUnits</span></div>
+                <div><label>Prerequisites</label> &nbsp; <p>@training.prerequisites</p></div>
+                <div><label>Qualifications</label> &nbsp; <p>@training.qualifications</p></div>
+                <div><label>Link</label> &nbsp; <a href="@training.link">@training.link</a></div>
+                <label>Banner</label>
+                <img
+                   class="img-responsive"
+                   alt=""
+                   src="@if(training.banner.isDefined){@s3Service.getFileUrl(training.banner.get)}else{@routes.Assets.versioned("images/trainings/no-banner.jpg")}"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-xs-6">
+          <div style="margin-left: 5px">
+            <div class="panel panel-default sm-table" style="margin-top: 0px;">
+              <div class="panel-body">
+                @if(trainingUnits.size == 0) { <span>No units in this training</span> } else {
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Units</th>
+                        <th>Position</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      @for(tu <- trainingUnits) {
+                        <tr>
+                          <td>
+                            <a href="@routes.TrainingUnitController.show(department.id.value, program.id.value, training.id.value, tu.id.value)">@(tu.title)</a>
+                            <div class="item-info" style="text-align: left;display: inline-block">
+                              @if(tu.optional) { <span>(Optional)</span> }
+                            </div>
+                          </td>
+
+                          <td>@Option(tu.position)</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    }
+  }
+}

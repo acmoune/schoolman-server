@@ -1,0 +1,26 @@
+@this(s3Service: utils.S3Service)
+@(
+  f: play.api.data.Form[controllers.formfactories.ProgramFormData],
+  department: models.Department
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.catalog.programForm
+@import components.commons._
+
+@trainingsLayout("Edit Program: " + f.data("title")) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), f.data("title"), Some(routes.ProgramController.show(department.id.value, f.data("id").toLong).url)),
+      Location(None, "Edit Program", None)
+    ))
+  }
+
+  @programForm("Edit Program: " + f.data("title"), department, f, s3Service)
+}

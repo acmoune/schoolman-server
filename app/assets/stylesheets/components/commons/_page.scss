@@ -1,0 +1,17 @@
+.sm-page {
+  margin: 10px 0px;
+
+  .page-content {
+    .page-title {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #808080;
+      margin: 10px 0px;
+      text-align: center;
+    }
+
+    .page-body {
+      min-height: 350px;
+    }
+  }
+}

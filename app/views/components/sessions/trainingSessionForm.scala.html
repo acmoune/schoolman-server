@@ -1,0 +1,84 @@
+@(
+  formTitle: String,
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  f: play.api.data.Form[controllers.formfactories.TrainingSessionFormData]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@optionalId = @{f.data.get("id").map(_.toLong)}
+
+@cancelTo = @{
+  if (optionalId.isDefined)
+    routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, optionalId.get)
+  else
+    routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)
+}
+
+@submitTo = @{
+  if (optionalId.isDefined)
+    routes.SessionController.update(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, optionalId.get)
+  else
+    routes.SessionController.create(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)
+}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@page() {
+  @container {
+    @form(submitTo) {
+      @CSRF.formField
+      @pageMenu(Some(left), Some(right))
+
+      <div class="page-title">@formTitle</div>
+
+      @smallContainer {
+        <div class="panel panel-default">
+        <div class="panel-body">
+          @if(f.globalErrors) {
+            @alert("danger") {
+              @errors(f.globalErrors, p)
+            }
+          }
+
+          @if(optionalId.isDefined) { <input type="hidden" name="id" value="@optionalId.get" /> }
+
+          <input type="hidden" name="trainingPlanId" value="@trainingPlan.id.value" />
+
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input name="title" id="title" type="text" class="form-control" value="@f.data("title")" />
+            @errors(f.errors("title"), p)
+          </div>
+
+          <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input name="startDate" id="startDate" type="date" class="form-control" value="@Option(f.data.get("startDate"))" />
+            @errors(f.errors("startDate"), p)
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <div>
+              <input type="radio" name="status" value="Opened" @if(f.data("status") == "Opened"){checked}> Opened &nbsp;&nbsp;
+              <input type="radio" name="status" value="Closed" @if(f.data("status") == "Closed"){checked}> Closed &nbsp;&nbsp;
+              <input type="radio" name="status" value="Finished" @if(f.data("status") == "Finished"){checked}> Finished
+            </div>
+            @errors(f.errors("status"), p)
+          </div>
+        </div>
+      </div>
+      }
+    }
+  }
+}

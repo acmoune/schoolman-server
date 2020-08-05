@@ -1,0 +1,12 @@
+@(css: Option[String] = None)(logo: Html)(menu: Html)
+
+@container {
+  <nav class="sm-nav-bar" style="@Option(css)">
+    <div class="inside">
+      <div class="nav-logo">
+        @logo
+      </div>
+      <div class="nav-menu">@menu</div>
+    </div>
+  </nav>
+}

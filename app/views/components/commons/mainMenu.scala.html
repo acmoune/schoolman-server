@@ -1,0 +1,16 @@
+@(username: String, role: String)
+
+<div style="background-color: #339967;width: 100%;position:fixed; top: 0px;z-index: 900; height:41px;border-bottom: 1px solid green;">
+  @container {
+    @navBar() {
+      <a href="@routes.DepartmentController.list">
+        <img src="@routes.Assets.versioned("images/logo.png")" alt="" style="height: 34px" />
+      </a>
+    } {
+      <a href="@routes.DepartmentController.list"><span class="fa fa-book"></span> Catalog</a>
+      <a href="@routes.AccountController.list"><span class="fa fa-group"></span> Students & Staff</a>
+      <a href="@routes.AuthController.signOutUser"><span class="fa fa-power-off"></span> Sign Out</a>
+      <div style="padding-left: 5px;color:#FABD03;font-size: 8pt;font-weight:bold"><span class="fa fa-user"></span>  @username (@role)</div>
+    }
+  }
+</div>

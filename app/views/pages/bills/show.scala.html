@@ -1,0 +1,131 @@
+@import layouts.accountsLayout
+@import components.commons._
+@(
+  bill: models.Bill,
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  trainingSession: models.TrainingSession,
+  account: models.Account,
+  enrollment: models.Enrollment,
+  payments: Seq[Payment],
+  fee: models.TrainingSessionFee
+)(
+  implicit req: RequestHeader,
+  flash: Flash
+)
+
+@paid = @{payments.map(_.amount).fold(0.0)(_ + _) >= bill.amount}
+
+@left = {
+  <a
+    class="btn btn-success btn-xs menu-item"
+    href="@routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value)"
+  >
+    <span class="fa fa-arrow-circle-left"></span> Enrollment
+  </a>
+
+  <a
+    class="btn btn-default btn-xs menu-item"
+    href="@routes.BillController.edit(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value)"
+  >
+    Edit
+  </a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.BillController.delete(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a
+    class="btn btn-success btn-xs menu-item"
+    @if(!paid){
+      href="@routes.PaymentController.newPayment(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value)"
+    } else {
+      disabled
+    }
+  >
+    New Payment
+  </a>
+}
+
+@accountsLayout("Bill: " + fee.description) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, Some(routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value).url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(Some("Enrollment"), enrollment.id.value.toString, Some(routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value).url)),
+      Location(Some("Bill"), fee.description, None)
+    ))
+  }
+
+  @page(title = Some("Bill: " + fee.description + " (" + fee.feeType + ")"), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-6">
+              <div><label>Amount</label> &nbsp; <span>@currency(bill.amount)</span></div>
+              <div><label>Total Paid</label> &nbsp; <span>@currency(payments.map(_.amount).fold(0.0)(_ + _))</span></div>
+              <div><label>Status</label> &nbsp; <span>@if(paid){Paid}else{Not Paid}</span></div>
+            </div>
+
+            <div class="col-xs-6"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table" style="margin-top: 0px;">
+        <div class="panel-body">
+          @if(payments.size == 0) { <span>No payment for this bill</span> } else {
+          <table class="table table-condensed">
+            <thead>
+            <tr>
+              <th>Payments</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+            </thead>
+
+            <tbody>
+              @for(p <- payments) {
+                <tr>
+                  <td>
+                    <a>
+                      @currency(p.amount)
+                    </a>
+                  </td>
+
+                  <td>@p.date.toString</td>
+
+                  <td>
+                    <div style="text-align: right">
+                      <button
+                        class="btn btn-danger btn-xs menu-item"
+                        onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.PaymentController.delete(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value, p.id.value)'})()"
+                      >
+                        <span class="fa fa-trash"></span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          }
+        </div>
+      </div>
+    }
+  }
+}

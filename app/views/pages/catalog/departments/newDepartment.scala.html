@@ -1,0 +1,22 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.DepartmentFormData]
+)(
+  implicit req: RequestHeader,
+  flash: Flash,
+  p: MessagesProvider,
+)
+
+@import layouts.trainingsLayout
+@import components.catalog.departmentForm
+@import components.commons._
+
+@trainingsLayout("New Department") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(None, "New Department", None)
+    ))
+  }
+
+  @departmentForm("New Department", f)
+}

@@ -1,0 +1,71 @@
+@import layouts.accountsLayout
+@import helper._
+@import components.commons._
+@(
+  f: play.api.data.Form[controllers.formfactories.AccountFormData]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@left = {
+  <a
+    class="btn btn-default btn-xs menu-item"
+    href="@routes.AccountController.list()"
+  >
+    Cancel
+  </a>
+}
+
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@accountsLayout("New Account") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All accounts", Some(routes.AccountController.list().url)),
+      Location(None, "New Account", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(routes.AccountController.create()) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">New Account</div>
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+
+              @if(f.globalErrors) {
+                @alert("danger") {
+                  @errors(f.globalErrors, p)
+                }
+              }
+
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input name="fullName" id="fullName" type="text" class="form-control" value="@f.data("fullName")" />
+                @errors(f.errors("fullName"), p)
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input name="email" id="email" type="text" class="form-control" value="@f.data("email")" />
+                @errors(f.errors("email"), p)
+              </div>
+
+              <input name="password" id="password" type="hidden" value="changeme" />
+              <input name="passwordConfirmation" id="passwordConfirmation" type="hidden" value="changeme" />
+              <input name="role" id="role" type="hidden" value="Student" />
+              <input type="hidden" name="locked" value="@f.data("locked")" />
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.BillFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  trainingSession: models.TrainingSession,
+  account: models.Account,
+  enrollment: models.Enrollment,
+  fees: Seq[(models.TrainingSessionFee, Option[models.Bill])]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@import layouts.accountsLayout
+
+@cancelTo = @{
+  routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value)
+}
+
+@submitTo = @{routes.BillController.create(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value)}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+
+@accountsLayout("New Bill") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, Some(routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value).url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(Some("Enrollment"), enrollment.id.value.toString, Some(routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value).url)),
+      Location(None, "New Bill", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(submitTo) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">New Bill</div>
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              @if(f.globalErrors) {
+                @alert("danger") {
+                  @errors(f.globalErrors, p)
+                }
+              }
+
+              <input type="hidden" name="enrollmentId" value="@enrollment.id.value" />
+
+              <label>Select Item</label>
+              <select
+                name="trainingSessionFeeId"
+                id="trainingSessionFeeId"
+                class="form-control"
+                size="10"
+                style="font-size: 9pt;"
+                onchange="(function(){
+                  var list = document.getElementById('trainingSessionFeeId');
+                  var amountInput = document.getElementById('amount');
+                  amountInput.value = list.options[list.selectedIndex].dataset.amount;
+                })()"
+              >
+                @for(f <- fees) {
+                <option
+                  @if(!f._2.isDefined){
+                    value="@f._1.id.value"
+                    data-amount="@f._1.promotionalAmount.getOrElse(f._1.amount)"
+                  } else {
+                    disabled
+                    style="color: #CCCCCC"
+                  }
+                >
+                  @f._1.description ( Type: @f._1.feeType.toString, Amount: @currency(f._1.promotionalAmount.getOrElse(f._1.amount)) )
+                </option>
+                }
+              </select>
+              @errors(f.errors("trainingSessionFeeId"), p)
+
+              <input type="hidden" name="amount" id="amount" value="@f.data("amount")" />
+
+          </div>
+        }
+      }
+    }
+  }
+}

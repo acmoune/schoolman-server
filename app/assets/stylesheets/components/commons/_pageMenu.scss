@@ -1,0 +1,28 @@
+.sm-page-menu {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  background-color: #FFFFFF;
+  color: white;
+  padding-left: 3px;
+  padding-right: 3px;
+  font-size: 9pt;
+  border-radius: 3px;
+  border: 1px solid #DFDFDF;
+
+  .page-menu-left {
+    flex-grow: 1;
+    display: flex;
+  }
+
+  .page-menu-right {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .menu-item {
+    margin: 3px;
+    font-weight: bold;
+  }
+}

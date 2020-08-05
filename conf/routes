@@ -1,0 +1,153 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+
+# Printing #######################
+GET        /printpdf/bills/:billId          controllers.PrinterController.printBill(billId: Long)
+GET        /api/printpdf/bills/:billId      controllers.PrinterController.clientPrintBill(billId: Long)
+
+
+
+# Server routes ##################
+GET        /                                       controllers.DepartmentController.list
+
+# Accounts routes ##########################
+GET        /accounts                    controllers.AccountController.list
+GET        /accounts/new                controllers.AccountController.newAccount
+POST       /accounts                    controllers.AccountController.create
+GET        /accounts/:id                controllers.AccountController.show(id: Long)
+GET        /accounts/:id/delete         controllers.AccountController.delete(id: Long)
+GET        /accounts/:id/lock           controllers.AccountController.lock(id: Long)
+GET        /accounts/:id/unlock         controllers.AccountController.unlock(id: Long)
+GET        /accounts/:id/editDetails    controllers.AccountController.editDetails(id: Long)
+POST       /accounts/:id/details        controllers.AccountController.updateDetails(id: Long)
+GET        /accounts/:id/editPassword   controllers.AccountController.editPassword(id: Long)
+POST       /accounts/:id/password       controllers.AccountController.updatePassword(id: Long)
+
+# Account profiles routes #######################
+GET        /accounts/:accountId/profile/new           controllers.AccountProfileController.newAccountProfile(accountId: Long)
+POST       /accounts/:accountId/profile               controllers.AccountProfileController.create(accountId: Long)
+GET        /accounts/:accountId/profile/:id/edit      controllers.AccountProfileController.edit(accountId: Long, id: Long)
+POST       /accounts/:accountId/profile/:id/update    controllers.AccountProfileController.update(accountId: Long, id: Long)
+
+
+# Catalog routes #################
+
+#Departments
+GET       /trainings/deps/new                controllers.DepartmentController.newDepartment
+# GET       /trainings/deps                    controllers.DepartmentController.list
+GET       /trainings/deps/:id                controllers.DepartmentController.show(id: Long)
+GET       /trainings/deps/:id/edit           controllers.DepartmentController.edit(id: Long)
+POST      /trainings/deps/:id                controllers.DepartmentController.update(id: Long)
+POST      /trainings/deps                    controllers.DepartmentController.create
+GET       /trainings/deps/:id/delete         controllers.DepartmentController.delete(id: Long)
+
+# Programs
+GET       /trainings/deps/:departmentId/progs/new         controllers.ProgramController.newProgram(departmentId: Long)
+POST      /trainings/deps/:departmentId/progs             controllers.ProgramController.create(departmentId: Long)
+GET       /trainings/deps/:departmentId/progs/:id         controllers.ProgramController.show(departmentId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:id         controllers.ProgramController.update(departmentId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:id/edit    controllers.ProgramController.edit(departmentId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:id/delete  controllers.ProgramController.delete(departmentId: Long, id: Long)
+
+# Plans
+GET       /trainings/deps/:departmentId/progs/:programId/pls/new         controllers.PlanController.newPlan(departmentId: Long, programId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls             controllers.PlanController.create(departmentId: Long, programId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:id         controllers.PlanController.show(departmentId: Long, programId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:id         controllers.PlanController.update(departmentId: Long, programId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:id/edit    controllers.PlanController.edit(departmentId: Long, programId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:id/delete  controllers.PlanController.delete(departmentId: Long, programId: Long, id: Long)
+
+# Training plans
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/tps/new                       controllers.PlanController.addTrainingPlans(departmentId: Long, programId: Long, planId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/tps                           controllers.PlanController.createTrainingPlans(departmentId: Long, programId: Long, planId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:id        controllers.PlanController.showTrainingPlan(departmentId: Long, programId: Long, planId: Long, trainingId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:id        controllers.PlanController.updateTrainingPlan(departmentId: Long, programId: Long, planId: Long, trainingId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:id/edit   controllers.PlanController.editTrainingPlan(departmentId: Long, programId: Long, planId: Long, trainingId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/tps/:id/delete                controllers.PlanController.deleteTrainingPlan(departmentId: Long, programId: Long, planId: Long, id: Long)
+
+# Training fees
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/fees/new         controllers.TrainingFeeController.newTrainingFee(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/fees             controllers.TrainingFeeController.create(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/fees/:id         controllers.TrainingFeeController.update(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/fees/:id/edit    controllers.TrainingFeeController.edit(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/fees/:id/delete  controllers.TrainingFeeController.delete(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+
+# Training sessions
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/new         controllers.SessionController.newTrainingSession(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses             controllers.SessionController.create(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:id         controllers.SessionController.show(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:id         controllers.SessionController.update(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:id/edit    controllers.SessionController.edit(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:id/delete  controllers.SessionController.delete(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, id: Long)
+
+# Enrollments
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/enr/new                   controllers.EnrollmentController.newEnrollment(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/enr                       controllers.EnrollmentController.create(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:id         controllers.EnrollmentController.show(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:id         controllers.EnrollmentController.update(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:id/edit    controllers.EnrollmentController.edit(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:id/delete  controllers.EnrollmentController.delete(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, id: Long)
+
+# Bills
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/new         controllers.BillController.newBill(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils             controllers.BillController.create(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:id         controllers.BillController.show(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:id         controllers.BillController.update(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:id/edit    controllers.BillController.edit(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:id/delete  controllers.BillController.delete(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, id: Long)
+
+# Payments
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:bId/pays/new         controllers.PaymentController.newPayment(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, bId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:bId/pays             controllers.PaymentController.create(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, bId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/pls/:planId/ts/:trainingId/tps/:tpId/ses/:tsId/acc/:acId/enr/:eId/bils/:bId/pays/:id/delete  controllers.PaymentController.delete(departmentId: Long, programId: Long, planId: Long, trainingId: Long, tpId: Long, tsId: Long, acId: Long, eId: Long, bId: Long, id: Long)
+
+# Trainings
+GET       /trainings/deps/:departmentId/progs/:programId/ts/new         controllers.TrainingController.newTraining(departmentId: Long, programId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/ts             controllers.TrainingController.create(departmentId: Long, programId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:id         controllers.TrainingController.show(departmentId: Long, programId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/ts/:id         controllers.TrainingController.update(departmentId: Long, programId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:id/edit    controllers.TrainingController.edit(departmentId: Long, programId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:id/delete  controllers.TrainingController.delete(departmentId: Long, programId: Long, id: Long)
+
+# Training units
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units/new         controllers.TrainingUnitController.newTrainingUnit(departmentId: Long, programId: Long, trainingId: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units             controllers.TrainingUnitController.create(departmentId: Long, programId: Long, trainingId: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units/:id         controllers.TrainingUnitController.show(departmentId: Long, programId: Long, trainingId: Long, id: Long)
+POST      /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units/:id         controllers.TrainingUnitController.update(departmentId: Long, programId: Long, trainingId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units/:id/edit    controllers.TrainingUnitController.edit(departmentId: Long, programId: Long, trainingId: Long, id: Long)
+GET       /trainings/deps/:departmentId/progs/:programId/ts/:trainingId/units/:id/delete  controllers.TrainingUnitController.delete(departmentId: Long, programId: Long, trainingId: Long, id: Long)
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET       /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
+
+
+# Auth Routes
+###################################################################
+GET      /auth/signin                   controllers.AuthController.signInUser
+GET      /auth/signout                  controllers.AuthController.signOutUser
+POST     /auth/authenticate             controllers.AuthController.authenticateUser
+
+
+# API Routes #####################################################################
+GET      /api/departments                             api.controllers.CatalogController.getDepartments
+GET      /api/programs/:programId/trainings           api.controllers.CatalogController.getTrainings(programId: Long)
+GET      /api/trainings/:trainingId/program           api.controllers.CatalogController.getProgramForTraining(trainingId: Long)
+GET      /api/trainings/:trainingId                   api.controllers.CatalogController.getTraining(trainingId: Long)
+GET      /api/programs/:programId/department          api.controllers.CatalogController.getDepartmentForProgram(programId: Long)
+GET      /api/trainingplans/:tpId/training            api.controllers.CatalogController.getTrainingForTrainingPlan(tpId: Long)
+GET      /api/trainingsessions/:tsId/trainingPlan     api.controllers.CatalogController.getTrainingPlanForTrainingSession(tsId: Long)
+GET      /api/trainingsessions/:tsId                  api.controllers.CatalogController.getTrainingSession(tsId: Long)
+POST     /api/auth/authenticate                       api.controllers.AuthController.authenticateApiUser
+PATCH    /api/accountPassword                         api.controllers.AccountsController.updatePassword
+PUT      /api/accountProfile                          api.controllers.AccountsController.updateProfile
+POST     /api/createProfile                           api.controllers.AccountsController.createProfile
+POST     /api/validateToken                           api.controllers.AccountsController.validateToken
+
+GET      /api/accounts/:email                         api.controllers.AccountsController.getAccount(email: String)
+GET      /api/accounts/:email/profile                 api.controllers.AccountsController.getAccountProfile(email: String)
+GET      /api/profiles/:profileId/account             api.controllers.AccountsController.getAccountForProfile(profileId: Long)
+GET      /api/accounts/:accountId/enrollments         api.controllers.AccountsController.getEnrollments(accountId: Long)

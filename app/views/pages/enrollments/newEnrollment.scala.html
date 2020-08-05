@@ -1,0 +1,89 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.EnrollmentFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  trainingSession: models.TrainingSession,
+  accounts: Seq[(models.Account, Option[models.Enrollment])]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@import layouts.trainingsLayout
+
+@cancelTo = @{
+  routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)
+}
+
+@submitTo = @{
+  routes.EnrollmentController.create(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)
+}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+
+@trainingsLayout("New Enrollment") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, Some(routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value).url)),
+      Location(None, "New Enrollment", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(submitTo) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">New Enrollment</div>
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              @if(f.globalErrors) {
+                @alert("danger") {
+                  @errors(f.globalErrors, p)
+                }
+              }
+
+              <input type="hidden" name="trainingSessionId" value="@trainingSession.id.value" />
+
+              <label>Select Account</label>
+              <select name="accountId" required class="form-control" size="25" style="font-size: 9pt;">
+                @for(a <- accounts) {
+                <option
+                  @if(!a._2.isDefined){
+                    value="@a._1.id.value"
+                  } else {
+                    disabled
+                    style="color: #CCCCCC"
+                  }
+                >
+                  @a._1.fullName
+                </option>
+                }
+              </select>
+              @errors(f.errors("accountId"), p)
+
+              <input type="hidden" name="notes" values="" />
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

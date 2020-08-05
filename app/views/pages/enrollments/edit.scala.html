@@ -1,0 +1,79 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.EnrollmentFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  trainingSession: models.TrainingSession,
+  account: models.Account
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+@import layouts.trainingsLayout
+
+@cancelTo = @{
+  routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)
+}
+
+@submitTo = @{
+  routes.EnrollmentController.update(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, f.data("id").toLong)
+}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+
+@trainingsLayout("Edit Enrollment") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, Some(routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value).url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(Some("Enrollment"), f.data("id"), Some(routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, f.data("id").toLong).url)),
+      Location(None, "Edit Enrollment", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(submitTo) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">Edit Enrollment</div>
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              @if(f.globalErrors) {
+                @alert("danger") {
+                  @errors(f.globalErrors, p)
+                }
+              }
+
+              <input type="hidden" name="id" value="@f.data("id").toLong" />
+              <input type="hidden" name="accountId" value="@account.id.value" />
+              <input type="hidden" name="trainingSessionId" value="@trainingSession.id.value" />
+
+              <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea name="notes" id="notes" class="form-control">@f.data.getOrElse("notes", "")</textarea>
+                @errors(f.errors("notes"), p)
+              </div>
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

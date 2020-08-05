@@ -1,0 +1,91 @@
+@(
+  formTitle: String,
+  f: play.api.data.Form[controllers.formfactories.AccountProfileFormData]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@optionalId = @{f.data.get("id").map(_.toLong)}
+@cancelTo = @{routes.AccountController.show(f.data("accountId").toLong)}
+
+@submitTo = @{
+  if (optionalId.isDefined)
+    routes.AccountProfileController.update(f.data("accountId").toLong, optionalId.get)
+  else
+    routes.AccountProfileController.create(f.data("accountId").toLong)
+}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@page() {
+  @container {
+    @form(submitTo) {
+      @CSRF.formField
+      @pageMenu(Some(left), Some(right))
+
+      <div class="page-title">@formTitle</div>
+
+      @smallContainer {
+        @if(f.globalErrors) {
+          @alert("danger") {
+            @errors(f.globalErrors, p)
+          }
+        }
+
+        @if(optionalId.isDefined) { <input type="hidden" name="id" value="@optionalId.get" /> }
+
+        <input type="hidden" name="accountId" value="@f.data("accountId").toLong" />
+
+        <h3 style="color:#808080;text-align: center">Personal Information</h3>
+        <div class="panel panel-default">
+          <div class="panel-body">
+
+            <div class="form-group">
+              <label for="birthDate">Birth date</label>
+              <input name="birthDate" id="birthDate" type="date" class="form-control" value="@Option(f.data.get("birthDate"))" />
+              @errors(f.errors("birthDate"), p)
+            </div>
+
+            <div class="form-group">
+              <label for="birthPlace">Birth place</label>
+              <input name="birthPlace" id="birthPlace" type="text" class="form-control" value="@f.data("birthPlace")" />
+              @errors(f.errors("birthPlace"), p)
+            </div>
+
+            <div class="form-group">
+              <label for="residence">Residence</label>
+              <input name="residence" id="residence" type="text" class="form-control" value="@f.data("residence")" />
+              @errors(f.errors("residence"), p)
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Phone number</label>
+              <input name="phoneNumber" id="phoneNumber" type="text" class="form-control" value="@f.data("phoneNumber")" />
+              @errors(f.errors("phoneNumber"), p)
+            </div>
+
+            <div class="form-group">
+              <label for="nationality">Nationality</label>
+              <input name="nationality" id="nationality" type="text" class="form-control" value="@f.data("nationality")" />
+              @errors(f.errors("nationality"), p)
+            </div>
+
+          </div>
+        </div>
+
+        <h3 style="color: #808080;text-align: center">Other details</h3>
+        <p style="color:#808080; font-size: 9pt; text-align: center">Please provide missing details here, anything that is valuable for you.</p>
+        <div>
+          <textarea style="min-height: 350px;" name="otherDetails" id="otherDetails" class="form-control notes">@Option(f.data.get("otherDetails"))</textarea>
+          @errors(f.errors("otherDetails"), p)
+        </div>
+      }
+    }
+  }
+}

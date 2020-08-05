@@ -1,0 +1,56 @@
+@import "components/commons/_navBar.scss";
+@import "components/commons/_page.scss";
+@import "components/commons/_pageMenu.scss";
+
+@import "css/_table.scss";
+
+
+body {
+  background-color: #F8F9FA !important;
+}
+
+.row.no-gutter {
+  margin-right:0;
+  margin-left:0;
+}
+
+.row.no-gutter > [class*='col-'] {
+  padding-right:0;
+  padding-left:0;
+}
+
+.panel {
+  margin-bottom: 10px !important;
+}
+
+.field-errors {
+  color: red;
+}
+
+textarea:hover,
+button:focus,
+button:active,
+button:hover
+{
+    outline:0px !important;
+    -webkit-appearance:none;
+}
+
+::-webkit-input-placeholder {
+  color: #CCCCCC;
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: #CCCCCC;
+}
+::-moz-placeholder {  /* Firefox 19+ */
+  color: #CCCCCC;
+}
+:-ms-input-placeholder {
+  color: #CCCCCC;
+}
+
+.form-group {
+  .info {
+    display: none;
+  }
+}

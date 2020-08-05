@@ -1,0 +1,26 @@
+@(name: String, id: String, height: Int, defaultSrc: String)
+
+@imageViewId = @{"image-view-" + id}
+
+<div class="image-field">
+  <input name="@name" id="@id" type="file" />
+
+  <img
+    class="img-responsive"
+    id="@imageViewId"
+    src="@defaultSrc"
+    alt=""
+    style="height: @{height}px; padding: 5px; border: 1px solid #DFDFDF; border-radius: 5px; margin-top: 10px;"
+  />
+
+  <script type="text/javascript">
+    var handleImageChange = function(event) {
+      var file = event.target.files[0]
+      if (file) document.getElementById("@imageViewId").setAttribute("src", URL.createObjectURL(file))
+    }
+
+    window.onload = function() {
+      document.getElementById("@id").onchange = handleImageChange
+    }
+  </script>
+</div>

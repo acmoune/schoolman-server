@@ -1,0 +1,141 @@
+@this(s3Service: utils.S3Service)
+@(
+  program: models.Program,
+  department: models.Department,
+  plans: Seq[(models.Plan, Int)],
+  trainings: Seq[(models.Training, Int)]
+)(
+  implicit req: RequestHeader, flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.DepartmentController.show(department.id.value)">
+    <span class="fa fa-arrow-circle-left"></span> Department
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.ProgramController.edit(department.id.value, program.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.ProgramController.delete(department.id.value, program.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.TrainingController.newTraining(department.id.value, program.id.value)">Add Training</a>
+  <a class="btn btn-success btn-xs menu-item" href="@routes.PlanController.newPlan(department.id.value, program.id.value)">Add Plan</a>
+}
+
+@trainingsLayout("Program: " + program.title) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, None)
+    ))
+  }
+
+  @page(title = Some("Program: " + program.title), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="panel panel-default">
+        <div class="panel-body">
+
+          <div class="row">
+            <div class="col-xs-6">
+              <div><label>Title</label> &nbsp; <span>@program.title</span></div>
+              <div><label>Description</label> &nbsp; <span>@program.description</span></div>
+              <div>
+                <label>Link</label> &nbsp;
+                @if(program.link.isDefined) { <a href="@program.link.get">@program.link.get</a> } else { <span>(Not specified)</span> }
+              </div>
+            </div>
+
+            <div class="col-xs-6">
+              <div style="text-align: right">
+                <div><label>Logo</label></div>
+                <img
+                  alt=""
+                  style="height: 125px; display: inline-block;"
+                  src="@if(program.logo.isDefined){@s3Service.getFileUrl(program.logo.get)}else{@routes.Assets.versioned("images/programs/no-logo.jpg")}"
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row no-gutter">
+        <div class="col-xs-6">
+          <div style="margin-right: 5px">
+            <div class="panel panel-default sm-table">
+              <div class="panel-body">
+                @if(plans.size == 0) { <span>No plans in this program</span> } else {
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Plans</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      @for(plan <- plans) {
+                        <tr>
+                          <td>
+                            <a href="@routes.PlanController.show(department.id.value, program.id.value, plan._1.id.value)">@(plan._1.title)</a>
+                            <div class="item-info" style="text-align: left">
+                              <span>@plan._2 Training</span>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-6">
+          <div style="margin-left: 5px">
+            <div class="panel panel-default sm-table">
+              <div class="panel-body">
+                @if(trainings.size == 0) { <span>No training in this program</span> } else {
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Training</th>
+                        <th>Position</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      @for(training <- trainings) {
+                        <tr>
+                          <td>
+                            <a href="@routes.TrainingController.show(department.id.value, program.id.value, training._1.id.value)">@(training._1.title)</a>
+                            <div class="item-info" style="text-align: left">
+                              <span>@training._2 Units</span>
+                            </div>
+                          </td>
+
+                          <td>@Option(training._1.position)</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}

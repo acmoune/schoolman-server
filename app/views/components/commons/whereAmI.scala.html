@@ -1,0 +1,17 @@
+@import models.Location
+
+@(locations: Seq[Location])
+
+<div style="padding: 3px; border-radius: 3px; border: 1px solid #DFDFDF; font-size: 8pt; color: #808080">
+  @for(loc <- locations) {
+    <a
+      @if(loc.link.isDefined){href="@Option(loc.link)"}
+      style="@if(!loc.link.isDefined){ color: #808080; }else{ background-color: #f2f0f0; } margin: 1px; display: inline-block; text-decoration: none; border-radius: 3px; padding: 1px 3px"
+    >
+      @if(loc.nodeType.isDefined) {
+        <span style="font-weight: bold">@Option(loc.nodeType)</span>:
+      }
+      @loc.label
+    </a>
+  }
+</div>

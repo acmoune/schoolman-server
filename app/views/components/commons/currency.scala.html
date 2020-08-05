@@ -1,0 +1,4 @@
+@(amount: Double)
+
+@currencyCode = @{java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("us", "US")).getCurrency.getCurrencyCode}
+@(currencyCode + " " + java.text.NumberFormat.getNumberInstance.format(amount))

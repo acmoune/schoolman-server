@@ -1,0 +1,12 @@
+@(title: Option[String] = None, menuLeft: Option[Html] = None, menuRight: Option[Html] = None)(content: Html)(implicit flash: Flash)
+
+<div class="sm-page">
+  @container {
+    <div class="page-content">
+      @if((menuLeft.isDefined) || (menuRight.isDefined)) { @pageMenu(menuLeft, menuRight) }
+      @flashMessages()
+      @if(title.isDefined) { <div class="page-title">@Option(title)</div> }
+      <div class="page-body">@content</div>
+    </div>
+  }
+</div>

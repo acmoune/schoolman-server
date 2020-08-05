@@ -1,0 +1,73 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.TrainingPlanListFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  trainings: Seq[(models.Training, Option[models.TrainingPlan])]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@left = {
+  <a
+    class="btn btn-default btn-xs menu-item"
+    href="@routes.PlanController.show(department.id.value, program.id.value, plan.id.value)"
+  >
+    Cancel
+  </a>
+}
+
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@import layouts.trainingsLayout
+
+@trainingsLayout("Add Trainings") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(None, "New Training Plan", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(routes.PlanController.createTrainingPlans(department.id.value, program.id.value, plan.id.value)) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">Select trainings for plan: @plan.title</div>
+        <input type="hidden" id="planId" name="planId" value="@plan.id.value" />
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <table style="width: 100%;">
+                @for(t <- trainings) {
+                  <tr style="border-bottom: 1px solid #DFDFDF;">
+                    <td>
+                      <div style="padding: 10px">
+                        @if(!t._2.isDefined){
+                          <input type="checkbox" name="trainingIds[]" value="@t._1.id.value" />
+                        }
+                      </div>
+                    </td>
+
+                    <td @if(t._2.isDefined){ style="color: #CCCCCC" }><div style="padding: 10px 0px;">@t._1.title</div></td>
+                  </tr>
+                }
+              </table>
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.AccountProfileFormData],
+  account: Account
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import layouts.accountsLayout
+@import components.accountProfiles.accountProfileForm
+@import components.commons._
+
+@accountsLayout("Edit Profile") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All accounts", Some(routes.AccountController.list().url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(None, "Edit Profile", None)
+    ))
+  }
+
+  @accountProfileForm("Edit Profile", f)
+}

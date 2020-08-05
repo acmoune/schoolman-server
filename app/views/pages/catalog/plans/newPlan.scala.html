@@ -1,0 +1,26 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.PlanFormData],
+  department: models.Department,
+  program: models.Program
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.catalog.planForm
+@import components.commons._
+
+@trainingsLayout("New Plan") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(None, "New Plan", None)
+    ))
+  }
+
+  @planForm("New Plan", department, program, f)
+}

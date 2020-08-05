@@ -1,0 +1,159 @@
+@(
+  trainingSession: models.TrainingSession,
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  fees: Seq[models.TrainingSessionFee],
+  enrollments: Seq[(models.Enrollment, models.Account, Boolean)]
+)(
+  implicit req: RequestHeader, flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)">
+    <span class="fa fa-arrow-circle-left"></span> Training Plan
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.SessionController.edit(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.SessionController.delete(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a
+    class="btn btn-success btn-xs menu-item"
+    @if(trainingSession.status.toString != "Opened"){
+      disabled
+    }else{
+      href="@routes.EnrollmentController.newEnrollment(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value)"
+    }
+  >
+    New Enrollment
+  </a>
+}
+
+@trainingsLayout("Training Session: " + trainingSession.title) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, None)
+    ))
+  }
+
+  @page(title = Some("Training Session: " + trainingSession.title), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div><label>Title</label> &nbsp; <span>@trainingSession.title</span></div>
+          <div><label>Duration</label> &nbsp; <span>@trainingPlan.duration</span></div>
+          <div><label>Start Date</label> &nbsp; <span>@if(trainingSession.startDate.isDefined){ @trainingSession.startDate.get.toString } else { Not scheduled }</span></div>
+          <div><label>Status</label> &nbsp; <span>@trainingSession.status.toString</span></div>
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table" style="margin-top: 0px;">
+        <div class="panel-body">
+          @if(fees.size == 0) { <span>No fees in this training session</span> } else {
+            <table class="table table-condensed">
+              <thead>
+              <tr>
+                <th>Fees</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Position</th>
+              </tr>
+              </thead>
+
+              <tbody>
+                @for(f <- fees) {
+                <tr>
+                  <td>
+                    @f.description
+
+                    <div class="item-info" style="text-align: left;display: inline-block">
+                      @if(f.optional) { <span>(Optional)</span> }
+                    </div>
+                  </td>
+
+                  <td>@f.feeType.toString</td>
+
+                  @if(f.promotionalAmount.isDefined) {
+                    <td>
+                      <span style="text-decoration: line-through">@currency(f.amount)</span> &nbsp;
+                      <span style="color: red">@currency(f.promotionalAmount.get)</span>
+                    </td>
+                  } else {
+                    <td>@currency(f.amount)</td>
+                  }
+
+                  <td>@Option(f.position)</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table" style="margin-top: 0px;">
+        <div class="panel-body">
+          @if(enrollments.size == 0) { <span>No enrollment in this session</span> } else {
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Enrollments</th>
+                  <th>Financial Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for(e <- enrollments) {
+                  <tr>
+                    <td>
+                      <a href="@routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, e._2.id.value, e._1.id.value)">@e._2.fullName</a>
+                    </td>
+
+                    <td>@if(e._3){OK}else{<span style="color:red">Bad</span>}</td>
+
+                    <td>
+                      <div style="text-align: right;">
+                        <a
+                          class="btn btn-default btn-xs menu-item"
+                          href="@routes.EnrollmentController.edit(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, e._2.id.value, e._1.id.value)"
+                        >
+                          <span class="fa fa-edit"></span>
+                        </a>
+
+                        <button
+                          class="btn btn-danger btn-xs menu-item"
+                          onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.EnrollmentController.delete(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, e._2.id.value, e._1.id.value)'})()"
+                        >
+                          <span class="fa fa-trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+    }
+  }
+}

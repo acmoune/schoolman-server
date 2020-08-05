@@ -1,0 +1,13 @@
+@(errors: Seq[play.api.data.FormError], p: MessagesProvider)
+
+@import play.api.templates.PlayMagic.translate
+
+@if(errors.size > 0) {
+  <ul style="padding: 0px;padding-left: 20px">
+    @for(error <- errors) {
+      <li>
+        @p.messages(error.message, error.args.map(a => translate(a)(p)): _*)
+      </li>
+    }
+  </ul>
+}

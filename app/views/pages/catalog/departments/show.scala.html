@@ -1,0 +1,80 @@
+@(
+  department: models.Department,
+  programs: Seq[(models.Program, Int, Int)]
+)(implicit req: RequestHeader, flash: Flash)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.DepartmentController.list()">
+    <span class="fa fa-arrow-circle-left"></span> All Departments
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.DepartmentController.edit(department.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.DepartmentController.delete(department.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.ProgramController.newProgram(department.id.value)">Add Program</a>
+}
+
+@trainingsLayout("Department: " + department.title) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, None)
+    ))
+  }
+
+  @page(title = Some("Department: " + department.title), menuLeft = Some(left), menuRight = Some(right)) {
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div><label>Title</label> &nbsp; <span>@department.title</span></div>
+      </div>
+    </div>
+
+    <div class="panel panel-default sm-table">
+      <div class="panel-body">
+        @if(programs.size == 0) {
+          <tr><td>No program in this department</td></tr>
+        } else {
+          <table class="table table-condensed">
+            <thead>
+            <tr>
+              <th>Programs</th>
+              <th>Position</th>
+              <th></th>
+            </tr>
+            </thead>
+
+            <tbody>
+              @for(program <- programs) {
+                <tr>
+                  <td>
+                    <a href="@routes.ProgramController.show(department.id.value, program._1.id.value)">@(program._1.title)</a>
+                  </td>
+
+                  <td>@Option(program._1.position)</td>
+
+                  <td>
+                    <div class="item-info">
+                      <span>@program._2 plans</span>, &nbsp;
+                      <span>@program._3 training</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+}

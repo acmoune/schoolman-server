@@ -1,0 +1,95 @@
+@(
+  formTitle: String,
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  f: play.api.data.Form[controllers.formfactories.TrainingFeeFormData]
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@optionalId = @{f.data.get("id").map(_.toLong)}
+
+@cancelTo = @{routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)}
+
+@submitTo = @{
+  if (optionalId.isDefined)
+    routes.TrainingFeeController.update(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, optionalId.get)
+  else
+    routes.TrainingFeeController.create(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)
+}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@page() {
+  @container {
+    @form(submitTo) {
+      @CSRF.formField
+      @pageMenu(Some(left), Some(right))
+
+      <div class="page-title">@formTitle</div>
+
+      @smallContainer {
+        <div class="panel panel-default">
+        <div class="panel-body">
+          @if(f.globalErrors) {
+            @alert("danger") {
+              @errors(f.globalErrors, p)
+            }
+          }
+
+          @if(optionalId.isDefined) { <input type="hidden" name="id" value="@optionalId.get" /> }
+
+          <input type="hidden" name="trainingPlanId" value="@trainingPlan.id.value" />
+
+          <div class="form-group">
+            <label>Fee type</label>
+            <div>
+              <input type="radio" name="feeType" value="Registration" @if(f.data("feeType") == "Registration"){checked}> Registration &nbsp;&nbsp;
+              <input type="radio" name="feeType" value="Tuition" @if(f.data("feeType") == "Tuition"){checked}> Tuition &nbsp;&nbsp;
+              <input type="radio" name="feeType" value="Exam" @if(f.data("feeType") == "Exam"){checked}> Exam
+            </div>
+            @errors(f.errors("feeType"), p)
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input name="description" id="description" type="text" class="form-control" value="@f.data("description")" />
+            @errors(f.errors("description"), p)
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Amount</label>
+            <input name="amount" id="amount" type="number" step="1" min="0" class="form-control" value="@f.data("amount")" />
+            @errors(f.errors("amount"), p)
+          </div>
+
+          <div class="form-group">
+            <label for="promotionalAmount">Promotional Amount</label>
+            <input name="promotionalAmount" id="promotionalAmount" type="number" step="1" min="0" class="form-control" value="@Option(f.data.get("promotionalAmount"))" />
+            @errors(f.errors("promotionalAmount"), p)
+          </div>
+
+          <div class="form-group">
+            @checkbox(field=f("optional"))
+          </div>
+
+          <div class="form-group">
+            <label for="position">Position</label>
+            <input name="position" id="position" type="number" min="0" class="form-control" value="@{Option(f.data.get("position"))}" />
+            <div class="field-errors">@errors(f.errors("position"), p)</div>
+          </div>
+        </div>
+      </div>
+      }
+    }
+  }
+}

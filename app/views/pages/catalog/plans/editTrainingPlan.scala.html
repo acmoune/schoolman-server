@@ -1,0 +1,67 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.TrainingPlanDetailsFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@left = {
+  <a
+    class="btn btn-default btn-xs menu-item"
+    href="@routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, f.data("id").toLong)"
+  >
+    Cancel
+  </a>
+}
+
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+@import layouts.trainingsLayout
+
+@trainingsLayout("Edit training plan") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.TrainingController.show(department.id.value, program.id.value, training.id.value).url)),
+      Location(None, "Edit Training Plan", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(routes.PlanController.updateTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, f.data("id").toLong)) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">Edit training plan</div>
+
+        <input type="hidden" id="id" name="id" value="@f.data("id").toLong" />
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+
+              <div class="form-group">
+                <label for="duration">Duration</label>
+                <input name="duration" id="duration" type="text" class="form-control" value="@{f.data("duration")}" />
+                @errors(f.errors("duration"), p)
+              </div>
+
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

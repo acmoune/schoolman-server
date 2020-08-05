@@ -1,0 +1,18 @@
+@import components.commons._
+@(title: String)(content: Html)(implicit req: RequestHeader)
+
+@baseLayout(title) {
+  @mainMenu(req.session.get("fullName").get, req.session.get("role").get)
+
+  <div style="padding-top: 10px;">
+    @container {
+      @navBar(css = Some("padding: 0px 5px; border: 1px solid green")) {
+        <span>Catalog</span>
+      } {
+        <a href="@routes.DepartmentController.list">Home</a>
+      }
+    }
+
+    @content
+  </div>
+}

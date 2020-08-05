@@ -1,0 +1,83 @@
+@(
+  f: play.api.data.Form[controllers.formfactories.PaymentFormData],
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingPlan: models.TrainingPlan,
+  trainingSession: models.TrainingSession,
+  account: models.Account,
+  enrollment: models.Enrollment,
+  bill: Bill,
+  fee: models.TrainingSessionFee
+)(
+  implicit req: RequestHeader,
+  p: MessagesProvider,
+  flash: Flash
+)
+
+@import helper._
+@import components.commons._
+
+@import layouts.accountsLayout
+
+@cancelTo = @{
+  routes.BillController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value)
+}
+
+@submitTo = @{routes.PaymentController.create(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value)}
+
+@left = { <a class="btn btn-default btn-xs menu-item" href="@cancelTo">Cancel</a> }
+@right = { <button type="submit" class="btn btn-success btn-xs menu-item">Submit</button> }
+
+
+@accountsLayout("New Payment") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, Some(routes.PlanController.showTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value).url)),
+      Location(Some("Session"), trainingSession.title, Some(routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value).url)),
+      Location(Some("Account"), account.fullName, Some(routes.AccountController.show(account.id.value).url)),
+      Location(Some("Enrollment"), enrollment.id.value.toString, Some(routes.EnrollmentController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value).url)),
+      Location(Some("Bill"), fee.description, Some(routes.BillController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, trainingSession.id.value, account.id.value, enrollment.id.value, bill.id.value).url)),
+      Location(None, "New Payment", None)
+    ))
+  }
+
+  @page() {
+    @container {
+      @form(submitTo) {
+        @CSRF.formField
+        @pageMenu(Some(left), Some(right))
+
+        <div class="page-title">New Payment for Bill: @fee.description (@fee.feeType)</div>
+
+        @smallContainer {
+          <div class="panel panel-default">
+            <div class="panel-body">
+              @if(f.globalErrors) {
+                @alert("danger") {
+                  @errors(f.globalErrors, p)
+                }
+              }
+
+              <input type="hidden" name="billId" value="@bill.id.value" />
+              <input type="hidden" name="date" value="@f.data("date")" />
+
+              <br />
+
+              <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" name="amount" id="amount" min="0" class="form-control" value="@f.data("amount")" />
+                @errors(f.errors("amount"), p)
+              </div>
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+}

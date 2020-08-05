@@ -1,0 +1,53 @@
+@(departments: Seq[(models.Department, Int)])(implicit req: RequestHeader, flash: Flash)
+
+@import models.Location
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.DepartmentController.newDepartment">New Department</a>
+}
+
+@right = {
+}
+
+@trainingsLayout("All departments") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", None)
+    ))
+  }
+  @page(title = Some("All Departments"), menuLeft = Some(left)) {
+    <div class="panel panel-default sm-table">
+      <div class="panel-body">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Departments</th>
+              <th>Position</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for(department <- departments) {
+              <tr>
+                <td>
+                  <a href="@routes.DepartmentController.show(department._1.id.value)">@(department._1.title)</a>
+                </td>
+
+                <td>@Option(department._1.position)</td>
+
+                <td>
+                  <div class="item-info">
+                    <span>@department._2 programs</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+}

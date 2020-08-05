@@ -1,0 +1,163 @@
+@(
+  trainingPlan: models.TrainingPlan,
+  department: models.Department,
+  program: models.Program,
+  plan: models.Plan,
+  training: models.Training,
+  trainingFees: Seq[models.TrainingFee],
+  trainingSessions: Seq[models.TrainingSession]
+)(
+  implicit req: RequestHeader, flash: Flash
+)
+
+@import layouts.trainingsLayout
+@import components.commons._
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.PlanController.show(department.id.value, program.id.value, plan.id.value)">
+    <span class="fa fa-arrow-circle-left"></span> Plan
+  </a>
+
+  <a class="btn btn-default btn-xs menu-item" href="@routes.PlanController.editTrainingPlan(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)">Edit</a>
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.PlanController.deleteTrainingPlan(department.id.value, program.id.value, plan.id.value, trainingPlan.id.value)'})()"
+  >
+    Delete
+  </button>
+}
+
+@right = {
+  <a
+    class="btn btn-success btn-xs menu-item"
+    href="@routes.TrainingFeeController.newTrainingFee(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)"
+  >
+    Add Fee
+  </a>
+
+  <a
+    class="btn btn-success btn-xs menu-item"
+    href="@routes.SessionController.newTrainingSession(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value)"
+  >
+    New Session
+  </a>
+}
+
+@trainingsLayout("Training plan details") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All departments", Some(routes.DepartmentController.list().url)),
+      Location(Some("Department"), department.title, Some(routes.DepartmentController.show(department.id.value).url)),
+      Location(Some("Program"), program.title, Some(routes.ProgramController.show(department.id.value, program.id.value).url)),
+      Location(Some("Plan"), plan.title, Some(routes.PlanController.show(department.id.value, program.id.value, plan.id.value).url)),
+      Location(Some("Training"), training.title, None)
+    ))
+  }
+
+  @page(title = Some("Training plan details"), menuLeft = Some(left), menuRight = Some(right)) {
+    @container {
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div>
+            <label>Duration</label> &nbsp;
+            <span>@if(trainingPlan.duration.isEmpty){ Not specified }else{ @trainingPlan.duration }</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table" style="margin-top: 0px;">
+        <div class="panel-body">
+          @if(trainingFees.size == 0) { <span>No fees in this training plan</span> } else {
+            <table class="table table-condensed">
+              <thead>
+                <tr>
+                  <th>Fees</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Position</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for(tf <- trainingFees) {
+                  <tr>
+                    <td>
+                      @tf.description
+
+                      <div class="item-info" style="text-align: left;display: inline-block">
+                        @if(tf.optional) { <span>(Optional)</span> }
+                      </div>
+                    </td>
+
+                    <td>@tf.feeType.toString</td>
+
+                    @if(tf.promotionalAmount.isDefined) {
+                      <td>
+                        <span style="text-decoration: line-through">@currency(tf.amount)</span> &nbsp;
+                        <span style="color: red">@currency(tf.promotionalAmount.get)</span>
+                      </td>
+                    } else {
+                      <td>@currency(tf.amount)</td>
+                    }
+
+                    <td>@Option(tf.position)</td>
+
+                    <td>
+                      <div style="text-align: right;">
+                        <a
+                          class="btn btn-default btn-xs menu-item"
+                          href="@routes.TrainingFeeController.edit(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, tf.id.value)"
+                        >
+                          <span class="fa fa-edit"></span>
+                        </a>
+
+                        <button
+                          class="btn btn-danger btn-xs menu-item"
+                          onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.TrainingFeeController.delete(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, tf.id.value)'})()"
+                        >
+                          <span class="fa fa-trash"></span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+
+      <div class="panel panel-default sm-table" style="margin-top: 0px;">
+        <div class="panel-body">
+          @if(trainingSessions.size == 0) { <span>No sessions in this training plan</span> } else {
+            <table class="table table-condensed">
+              <thead>
+              <tr>
+                <th>Sessions</th>
+                <th>Start date</th>
+                <th>Status</th>
+              </tr>
+              </thead>
+
+              <tbody>
+              @for(tsess <- trainingSessions) {
+              <tr>
+                <td>
+                  <a href="@routes.SessionController.show(department.id.value, program.id.value, plan.id.value, training.id.value, trainingPlan.id.value, tsess.id.value)">@tsess.title</a>
+                </td>
+
+                <td>@if(tsess.startDate.isDefined){ @tsess.startDate.get.toString } else { Not scheduled }</td>
+
+                <td>@tsess.status.toString</td>
+              </tr>
+              }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+    }
+  }
+}

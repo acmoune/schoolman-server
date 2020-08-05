@@ -1,0 +1,109 @@
+@import layouts.accountsLayout
+@import components.commons._
+@(
+  account: models.Account,
+  profile: Option[models.AccountProfile],
+  enrollments: Seq[repositories.EnrollmentGraph]
+)(implicit req: RequestHeader, flash: Flash)
+
+@left = {
+  <a class="btn btn-success btn-xs menu-item" href="@routes.AccountController.list()"><span class="fa fa-arrow-circle-left"></span></a>
+  <a class="btn btn-default btn-xs menu-item" href="@routes.AccountController.editDetails(account.id.value)"><span class="fa fa-edit"></span> Details</a>
+  <a class="btn btn-default btn-xs menu-item" href="@routes.AccountController.editPassword(account.id.value)"><span class="fa fa-edit"></span> Password</a>
+
+  @if(account.locked) {
+    <a class="btn btn-default btn-xs menu-item" href="@routes.AccountController.unlock(account.id.value)"><span class="fa fa-unlock"></span></a>
+  } else {
+    <a class="btn btn-danger btn-xs menu-item" href="@routes.AccountController.lock(account.id.value)"><span class="fa fa-lock"></span></a>
+  }
+
+  <button
+    class="btn btn-danger btn-xs menu-item"
+    onclick="(function(){if(confirm('Are you sure ?')) window.location = '@routes.AccountController.delete(account.id.value)'})()"
+  >
+    <span class="fa fa-trash"></span>
+  </button>
+}
+
+@right = {
+  @if(profile.isDefined) {
+    <a class="btn btn-success btn-xs menu-item" href="@routes.AccountProfileController.edit(account.id.value, profile.get.id.value)">Edit Profile</a>
+  } else {
+    <a class="btn btn-success btn-xs menu-item" href="@routes.AccountProfileController.newAccountProfile(account.id.value)">Create Profile</a>
+  }
+}
+
+@accountsLayout(account.fullName) {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All accounts", Some(routes.AccountController.list().url)),
+      Location(Some("Account"), account.fullName, None)
+    ))
+  }
+
+  @page(title = Some(account.fullName), menuLeft = Some(left), menuRight = Some(right)) {
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div><label>Full Name</label> &nbsp; <span>@account.fullName</span></div>
+        <div><label>Email</label> &nbsp; <span>@account.email</span></div>
+        <div><label>Role</label> &nbsp; <span>@account.role.toString</span></div>
+        <div><label>Locked</label> &nbsp; <span @if(account.locked){ style="color: red; font-weight: bold" } >@account.locked.toString</span></div>
+      </div>
+    </div>
+
+    <h3 style="color:#808080; text-align: center;">Enrollments</h3>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        @if(enrollments.size == 0) { <span>No enrollment for this account</span> } else {
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>Enrollments</th>
+                <th>Plan</th>
+                <th>Session</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for(e <- enrollments) {
+                <tr>
+                  <td>
+                    <a href="@routes.EnrollmentController.show(e.department.id.value, e.program.id.value, e.plan.id.value, e.training.id.value, e.trainingPlan.id.value, e.trainingSession.id.value, e.account.id.value, e.value.id.value)">
+                      @e.training.title
+                    </a>
+                  </td>
+
+                  <td>@e.plan.title</td>
+                  <td>@e.trainingSession.title</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
+    <h3 style="color:#808080; text-align: center;">Profile</h3>
+    <div class="panel panel-default">
+      <div class="panel-body">
+
+        @if(profile.isDefined) {
+          <div style="color: #808080; border-bottom: 1px solid #DFDFDF; margin-bottom: 10px">Personal Information</div>
+          <div><label>Birth date</label> &nbsp; <span>@profile.get.birthDate.toString</span></div>
+          <div><label>Birth place</label> &nbsp; <span>@profile.get.birthPlace</span></div>
+          <div><label>Residence</label> &nbsp; <span>@profile.get.residence</span></div>
+          <div><label>Phone number</label> &nbsp; <span>@profile.get.phoneNumber</span></div>
+          <div><label>Nationality</label> &nbsp; <span>@profile.get.nationality</span></div>
+
+          <br />
+
+          <div style="color: #808080; border-bottom: 1px solid #DFDFDF; margin-bottom: 10px">Other details</div>
+          <p>@Html(profile.get.otherDetails.getOrElse("Not set"))</p>
+        } else {
+          No profile for this account
+        }
+
+      </div>
+    </div>
+  }
+}

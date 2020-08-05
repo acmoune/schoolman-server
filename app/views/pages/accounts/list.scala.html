@@ -1,0 +1,91 @@
+@import layouts.accountsLayout
+@import components.commons._
+@(accounts: Seq[(models.Account, Int)])(implicit req: RequestHeader, flash: Flash)
+
+
+
+@left = {
+<a class="btn btn-success btn-xs menu-item" href="@routes.AccountController.newAccount">New Account</a>
+}
+
+@right = {
+}
+
+@accountsLayout("All Accounts") {
+  @container {
+    @whereAmI(Seq(
+      Location(None, "All accounts", None)
+    ))
+  }
+
+  @page(title = Some("All Accounts"), menuLeft = Some(left)) {
+    <div class="row no-gutter">
+      <div class="col-xs-6">
+
+        <div class="panel panel-default sm-table" style="margin-right: 5px">
+          <div class="panel-body">
+            <table class="table table-condensed">
+              <thead>
+              <tr>
+                <th>Students</th>
+                <th></th>
+              </tr>
+              </thead>
+
+              <tbody>
+              @for(a <- accounts.filter(_._1.role.toString == "Student")) {
+              <tr>
+                <td>
+                  <a href="@routes.AccountController.show(a._1.id.value)">@(a._1.fullName)</a>
+                </td>
+
+                <td>
+                  <div class="item-info">
+                    <span>@a._2 enrollments</span>
+                  </div>
+                </td>
+              </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-xs-6">
+
+        <div class="panel panel-default sm-table" style="margin-left: 5px">
+          <div class="panel-body">
+            <table class="table table-condensed">
+              <thead>
+              <tr>
+                <th>Staff</th>
+                <th></th>
+              </tr>
+              </thead>
+
+              <tbody>
+              @for(a <- accounts.filter(_._1.role.toString != "Student")) {
+              <tr>
+                <td>
+                  <a href="@routes.AccountController.show(a._1.id.value)">@(a._1.fullName)</a>
+                </td>
+
+                <td>
+                  <div class="item-info">
+                    <span>@a._2 enrollments</span>
+                  </div>
+                </td>
+              </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  }
+}

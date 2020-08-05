@@ -1,0 +1,128 @@
+@import components.commons._
+@(bill: repositories.BillGraph, currentDate: String)
+
+@dueAmount = @{bill.value.amount - bill.payments.map(_.amount).fold(0.0)(_ + _)}
+
+<html style="overflow-x: hidden;overflow-y: auto;">
+  <head>
+    <title>Bill</title>
+
+    <style>
+      table.tab {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #000000;
+      }
+
+      table.tab td {
+        padding: 3px;
+        border: 1px solid #000000;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div style="font-family: Arial;font-size: 10pt;">
+
+      <div
+        id="header"
+        style="padding: 5px 0px;"
+      >
+        <table style="width: 100%;">
+          <tr>
+            <td>
+              <div id="logo" style="max-width: 200px">
+                <img style="max-height: 100px; width: auto;" src="@routes.Assets.versioned("images/logo.png")" />
+              </div>
+            </td>
+
+            <td style="width: 100%">
+              <div id="details" style="text-align: right">
+                <div>
+                  <div style="font-size: 16pt;font-weight:bold;">Bill # @bill.value.id.value</div>
+                  <div style="font-size:10pt">@bill.account.fullName (@bill.account.email)</div>
+                  <div style="font-size:10pt">Date: @currentDate</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table class="tab" style="margin-top: 10px;">
+          <tr>
+            <td style="width: 100%"><strong>Description</strong></td>
+            <td style="width: 150px;text-align:right"><strong>Price</strong></td>
+          </tr>
+
+          <tr>
+            <td>
+              <div>
+                <div style="font-size:14pt;font-weight:bold;">@bill.fee.description</div>
+                <p>
+                  This bill is from your enrollment to the following training session:
+                  <ul>
+                    <li>Department: @bill.department.title</li>
+                    <li>Program: @bill.program.title</li>
+                    <li>Plan: @bill.plan.title</li>
+                    <li>Training: @bill.training.title</li>
+                    <li>Session: @bill.trainingSession.title</li>
+                  </ul>
+                </p>
+              </div>
+            </td>
+
+            <td><div style="width: 150px; text-align: right">@currency(bill.value.amount)</div></td>
+          </tr>
+        </table>
+
+        <table class="tab" style="margin-top: 10px;">
+          <tr>
+            <td>Total</td>
+            <td>Advanced</td>
+            <td>Due Amount</td>
+            <td>Status</td>
+          </tr>
+
+          <tr>
+            <td>@currency(bill.value.amount)</td>
+            <td>@currency(bill.payments.map(_.amount).fold(0.0)(_ + _))</td>
+            <td>@currency(if(dueAmount < 0){0}else{dueAmount})</td>
+            <td style="font-weight:bold">@if(dueAmount <= 0){Paid}else{Not Paid}</td>
+          </tr>
+        </table>
+
+        <h4>Payments</h4>
+
+        @if(bill.payments.size == 0){
+          None
+        } else {
+          <table class="tab" style="margin-top: 10px;">
+            <tr>
+              <td>Amount</td>
+              <td>Date</td>
+            </tr>
+
+            @for(p <- bill.payments){
+              <tr>
+                <td>@currency(p.amount)</td>
+                <td>@p.date.toString</td>
+              </tr>
+            }
+          </table>
+        }
+
+        <p style="font-size: 8pt;text-align:left;padding-top:10px;">
+          Note: Amounts paid are not refundable.
+          <p>
+            PAYMENT OPTIONS<br />
+            <ol>
+              <li>Option 1</li>
+              <li>Option 2</li>
+            </ol>
+          </p>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
