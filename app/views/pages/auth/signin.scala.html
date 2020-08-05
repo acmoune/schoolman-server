@@ -10,9 +10,10 @@
 @import helper._
 @import components.commons._
 
-@baseLayout("Sign In - IMIT Server") {
+@baseLayout("Sign In") {
   @smallContainer {
-    <h3 style="text-align: center">Sign In <span style="color: green">IMIT Server</span></h3>
+    <img src="@routes.Assets.versioned("images/logo.png")" alt="" />
+    <br /><br/>
 
     @if(f.globalErrors) {
       @alert("danger") {
